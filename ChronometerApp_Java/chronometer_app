@@ -1,0 +1,164 @@
+package timer;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+
+
+public class ChronometerApp extends JFrame {
+
+    private JLabel timeLabel;
+    private JButton startButton;
+    private JButton stopButton;
+    private Timer timer;
+    private long startTimer;
+    private boolean isRunning;
+    
+    public ChronometerApp(){
+        setTitle("Chronometer App");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(400, 200);
+        setLocationRelativeTo(null);
+        setResizable(false);
+        initialize(); // initialize the user interface
+        setVisible(true);
+    }
+    
+    private void initialize(){
+        
+        // Create and configure the time display label
+        timeLabel = new JLabel("00:00:00.000");
+        timeLabel.setFont(new Font("Arial", Font.BOLD, 48));
+        timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        // Create and configure the Start button
+        startButton = new JButton("Start");
+        startButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        startButton.setBackground(new Color(63, 81, 181));
+        startButton.setForeground(Color.white);
+        startButton.setFocusPainted(false);
+        startButton.setBorderPainted(false);
+        
+        startButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            
+               start(); // Start the chronometer
+            
+            }
+        });
+        
+        // Create and configure the Stop button
+        stopButton = new JButton("Stop");
+        stopButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        stopButton.setBackground(new Color(244, 67, 54));
+        stopButton.setForeground(Color.white);
+        stopButton.setEnabled(false);
+        stopButton.setFocusPainted(false);
+        stopButton.setBorderPainted(false);
+        
+        stopButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            
+               stop(); // Stop the chronometer
+            
+            }
+        });
+        
+        // Create a panel for the buttons and arrange them horizontally
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(Color.white);
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
+        buttonPanel.add(startButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(20, 0)));
+        buttonPanel.add(stopButton);
+        
+        // Set up the layout and add components to the content pane
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(timeLabel, BorderLayout.CENTER);
+        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+        
+        // Create a timer to update the chronometer display every 10 milliseconds
+        timer = new Timer(10, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            
+                updateTimer(); // Update the chronometer display
+            
+            }
+        });
+        
+    }
+    
+    private void start(){
+    
+        if(!isRunning){
+            startTimer = System.currentTimeMillis();
+            timer.start(); // start the timer
+            startButton.setEnabled(false);
+            stopButton.setEnabled(true);
+            isRunning = true;
+        }
+        
+    }
+    
+    private void stop(){
+    
+        if(isRunning){
+            timer.stop(); // stop the timer
+            startButton.setEnabled(true);
+            stopButton.setEnabled(false);
+            isRunning = false;
+        }
+        
+    }
+    
+    private void updateTimer(){
+    
+        long currentTime = System.currentTimeMillis();
+        long elapsedTime = currentTime - startTimer;
+        
+        // Calculate hours, minutes, seconds, and milliseconds
+        long hours = elapsedTime / 3600000;
+        long minutes = (elapsedTime % 3600000) / 60000;
+        long seconds = (elapsedTime % 60000) / 1000;
+        long milliseconds = elapsedTime % 1000;
+        
+        // Format the time components as strings with leading zeros if needed
+        DecimalFormat format = new DecimalFormat("00");
+        String timeString = format.format(hours)+":"
+                            +format.format(minutes)+":"
+                            +format.format(seconds)+"."
+                            +format.format(milliseconds);
+        
+        // Update the time label with the formatted time
+        timeLabel.setText(timeString);
+        
+    }
+    
+    
+    public static void main(String[] args){
+        
+        SwingUtilities.invokeLater(() -> {
+        
+            new ChronometerApp();
+        
+        });
+        
+    }
+    
+}
